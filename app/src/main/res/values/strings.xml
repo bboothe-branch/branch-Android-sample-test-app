@@ -1,0 +1,18 @@
+<resources>
+    <!-- Main Activity Lables -->
+    <string name="app_name">Branch Android Test Sample App</string>
+    <string name="deep_linking_title"><b><u>Deep Linking</u></b></string>
+    <string name="attribution_title"><b><u>Attribution</u></b></string>
+    <string name="event_tracking_title"><b><u>Event Tracking</u></b></string>
+    <string name="qr_code_api_title"><b><u>QR Code API</u></b></string>
+
+    <!-- Read Data Activity Lables -->
+    <string name="install_param_text"><b>Install Parameters:</b></string>
+    <string name="session_param_text"><b>Session Parameters:</b></string>
+
+
+    <!-- shortcut strings -->
+    <string name="shortReadDataLabel">Read Data Short Shortcut</string>
+    <string name="longReadDataLabel">Read Data Long Shortcut</string>
+    <string name="readDataDisabledMessage">Read Data Disabled</string>
+</resources>
