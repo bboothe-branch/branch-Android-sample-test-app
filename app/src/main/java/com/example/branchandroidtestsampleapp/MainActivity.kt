@@ -1,5 +1,6 @@
 package com.example.branchandroidtestsampleapp
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -48,9 +49,47 @@ class MainActivity : AppCompatActivity() {
                 if (linkProperties != null) {
                     Log.e("BranchSDK_Tester", "Channel " + linkProperties.channel)
                     Log.e("BranchSDK_Tester", "control params " + linkProperties.controlParams)
+                    Log.e("Branch Stuff",
+                        linkProperties.controlParams["\$og_title"].toString()
+                    )
+                    // ---------- Intra App Linking ----------
+
+                    // ---------- Make sure to set up "branch_force_new_session" for Intra App Linking to function ----------
+                    // ---------- Intra-app linking (i.e. session reinitialization) requires an intent flag, "branch_force_new_session". ----------
+                    if (linkProperties.controlParams["\$deeplink_path"].toString() == "new page") {
+
+                        val intent = Intent(this, DeepLinkRoutingPage::class.java)
+                        startActivity(intent)
+                    }
                 }
             }
         }.withData(this.intent.data).init()
+
+        // ---------- Routing ----------
+        /*
+        Branch.sessionBuilder(this).withCallback(object : Branch.BranchReferralInitListener {
+            override fun onInitFinished(referringParams: JSONObject?, error: BranchError?) {
+                if (error == null) {
+                    // option 1: log data
+                    Log.i("BRANCH SDK", referringParams.toString())
+
+                    // option 2: save data to be used later
+                    val preferences =  getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+                    preferences.edit().putString("branchData", referringParams.toString()).apply();
+
+                    // option 3: navigate to page
+                    val intent = Intent(this@MainActivity, DeepLinkRoutingPage::class.java)
+                    intent.putExtra("branchData", referringParams.toString())
+                    startActivity(intent)
+
+                    // option 4: display data
+                    Toast.makeText(this@MainActivity, referringParams.toString(), Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.e("BRANCH SDK", error.message)
+                }
+            }
+        }).withData(this.intent.data).init()
+        */
 
         // ---------- Create Branch Link ----------
 
@@ -67,7 +106,8 @@ class MainActivity : AppCompatActivity() {
                 .setChannel("Sample Test App Marketing")
                 .setFeature("sharing")
                 .addControlParameter("\$desktop_url", "http://example.com/home")
-                .addControlParameter("\$deeplink_path", "deepLinkPath")
+                .addControlParameter("\$deeplink_path", "new page")
+                .addControlParameter("blockColor", "Yellow")
 
             buo.generateShortUrl(this, lp, Branch.BranchLinkCreateListener { url, error ->
                 if (error == null) {
@@ -93,7 +133,9 @@ class MainActivity : AppCompatActivity() {
                 .setCampaign("content 123 launch")
                 .setStage("new user")
                 .addControlParameter("\$desktop_url", "http://example.com/home")
+                .addControlParameter("\$deeplink_path", "new page")
                 .addControlParameter("custom", "data")
+                .addControlParameter("blockColor", "Yellow")
                 .addControlParameter("custom_random", Calendar.getInstance().getTimeInMillis().toString())
 
             val ss = ShareSheetStyle(this@MainActivity, "Check this out!", "This stuff is awesome: ")
@@ -203,6 +245,12 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+        // ---------- Open Color Block Page Manually ----------
+        val colorBlockButton = findViewById<Button>(R.id.colorBlockPageButton)
+        colorBlockButton.setOnClickListener {
+            val colorBlockIntent = Intent(this, DeepLinkRoutingPage::class.java)
+            startActivity(colorBlockIntent)
+        }
 
        /* // Dynamic Shortcut
 
@@ -219,12 +267,24 @@ class MainActivity : AppCompatActivity() {
     // ---------- Initialize New Branch Session ----------
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent != null) {
+            intent.putExtra("branch_force_new_session", true)
+        }
         Branch.sessionBuilder(this).withCallback { referringParams, error ->
             if (error != null) {
                 Log.e("BranchSDK_Tester", error.message)
             } else if (referringParams != null) {
                 Log.e("BranchSDK_Tester", referringParams.toString())
                 println("SDK LOGS ABOVE")
+                if (referringParams.has("\$deeplink_path")) {
+                    if (referringParams["\$deeplink_path"] == "new page") {
+                        val routingPageIntent = Intent(this, DeepLinkRoutingPage::class.java)
+                        routingPageIntent.putExtra("branch_force_new_session", true)
+                        startActivity(routingPageIntent)
+                    }
+                }
+
             }
         }.reInit()
     }

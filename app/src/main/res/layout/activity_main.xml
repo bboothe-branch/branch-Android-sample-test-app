@@ -85,7 +85,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/commerceEventButton" />
+            app:layout_constraintTop_toBottomOf="@+id/colorBlockPageButton" />
 
         <ImageView
             android:id="@+id/qrCodeImageView"
@@ -141,6 +141,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/branchBadgeDark" />
+
+        <Button
+            android:id="@+id/colorBlockPageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Color Block Page"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/commerceEventButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

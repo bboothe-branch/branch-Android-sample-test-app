@@ -11,8 +11,12 @@
     <string name="session_param_text"><b>Session Parameters:</b></string>
 
 
-    <!-- shortcut strings -->
+    <!-- Strings for Routing Page -->
+    <string name="blockColorString">Your block color is: %1$s</string>
+
+    <!-- Shortcut strings -->
     <string name="shortReadDataLabel">Read Data Short Shortcut</string>
     <string name="longReadDataLabel">Read Data Long Shortcut</string>
     <string name="readDataDisabledMessage">Read Data Disabled</string>
+
 </resources>

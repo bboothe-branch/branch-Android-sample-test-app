@@ -27,6 +27,9 @@
         android:theme="@style/Theme.BranchAndroidTestSampleApp"
         tools:targetApi="31">
         <activity
+            android:name=".DeepLinkRoutingPage"
+            android:exported="false" />
+        <activity
             android:name=".ReadDeepLinkActivity"
             android:exported="false" />
         <activity
@@ -35,9 +38,9 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
 
             <!-- Branch URI Scheme -->
             <intent-filter>
