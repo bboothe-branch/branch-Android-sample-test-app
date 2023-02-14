@@ -5,9 +5,11 @@
       <map>
         <entry key="app/src/main/res/drawable/my_border.xml" value="0.224" />
         <entry key="app/src/main/res/drawable/my_border2.xml" value="0.194" />
+        <entry key="app/src/main/res/layout/activity_color_block_page.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_deep_link_routing_page.xml" value="0.335" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.45" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.375" />
         <entry key="app/src/main/res/layout/activity_read_deep_link.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/qr_code_popup_window.xml" value="0.24895833333333334" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.194" />
         <entry key="app/src/main/res/xml/shortcuts.xml" value="0.2171875" />
       </map>

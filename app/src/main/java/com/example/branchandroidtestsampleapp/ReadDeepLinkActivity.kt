@@ -57,6 +57,7 @@ class ReadDeepLinkActivity : AppCompatActivity() {
 
         readDeepLink()
 
+        // Home button to return to MainActivity
 
         val homeButton = findViewById<Button>(R.id.homeButton)
         homeButton.setOnClickListener {

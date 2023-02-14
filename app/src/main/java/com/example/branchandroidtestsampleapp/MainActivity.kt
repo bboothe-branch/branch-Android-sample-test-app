@@ -7,13 +7,10 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
+import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.WindowManager
 import android.widget.*
-import androidx.annotation.RequiresPermission
-import androidx.core.content.pm.ShortcutInfoCompat
-import androidx.core.content.pm.ShortcutManagerCompat
-import androidx.core.graphics.drawable.IconCompat
 import androidx.core.view.updateLayoutParams
 import io.branch.referral.Branch
 import io.branch.indexing.BranchUniversalObject
@@ -22,8 +19,6 @@ import io.branch.referral.QRCode.BranchQRCode
 import io.branch.referral.SharingHelper
 import io.branch.referral.util.*
 
-import org.json.JSONObject
-import org.w3c.dom.Text
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         // ---------- Initialize Branch Session on App Open ----------
+
         Branch.sessionBuilder(this).withCallback { branchUniversalObject, linkProperties, error ->
             if (error != null) {
                 Log.e("BranchSDK_Tester", "branch init failed. Caused by -" + error.message)
@@ -52,44 +48,17 @@ class MainActivity : AppCompatActivity() {
                     Log.e("Branch Stuff",
                         linkProperties.controlParams["\$og_title"].toString()
                     )
-                    // ---------- Intra App Linking ----------
-
-                    // ---------- Make sure to set up "branch_force_new_session" for Intra App Linking to function ----------
+                    // ---------- Intra App Linking Using Custom $deeplink_path ----------
                     // ---------- Intra-app linking (i.e. session reinitialization) requires an intent flag, "branch_force_new_session". ----------
-                    if (linkProperties.controlParams["\$deeplink_path"].toString() == "new page") {
+                    if (linkProperties.controlParams["\$deeplink_path"].toString() == "color block page") {
 
-                        val intent = Intent(this, DeepLinkRoutingPage::class.java)
+                        val intent = Intent(this, ColorBlockPage::class.java)
+                        intent.putExtra("branch_force_new_session", true)
                         startActivity(intent)
                     }
                 }
             }
         }.withData(this.intent.data).init()
-
-        // ---------- Routing ----------
-        /*
-        Branch.sessionBuilder(this).withCallback(object : Branch.BranchReferralInitListener {
-            override fun onInitFinished(referringParams: JSONObject?, error: BranchError?) {
-                if (error == null) {
-                    // option 1: log data
-                    Log.i("BRANCH SDK", referringParams.toString())
-
-                    // option 2: save data to be used later
-                    val preferences =  getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-                    preferences.edit().putString("branchData", referringParams.toString()).apply();
-
-                    // option 3: navigate to page
-                    val intent = Intent(this@MainActivity, DeepLinkRoutingPage::class.java)
-                    intent.putExtra("branchData", referringParams.toString())
-                    startActivity(intent)
-
-                    // option 4: display data
-                    Toast.makeText(this@MainActivity, referringParams.toString(), Toast.LENGTH_SHORT).show()
-                } else {
-                    Log.e("BRANCH SDK", error.message)
-                }
-            }
-        }).withData(this.intent.data).init()
-        */
 
         // ---------- Create Branch Link ----------
 
@@ -106,7 +75,7 @@ class MainActivity : AppCompatActivity() {
                 .setChannel("Sample Test App Marketing")
                 .setFeature("sharing")
                 .addControlParameter("\$desktop_url", "http://example.com/home")
-                .addControlParameter("\$deeplink_path", "new page")
+                .addControlParameter("\$deeplink_path", "color block page")
                 .addControlParameter("blockColor", "Yellow")
 
             buo.generateShortUrl(this, lp, Branch.BranchLinkCreateListener { url, error ->
@@ -121,21 +90,20 @@ class MainActivity : AppCompatActivity() {
             })
 
         }
-
         createBranchLink()
 
         // ---------- Share Branch Link ----------
 
         fun ShareBranchLink() {
-            var lp = LinkProperties()
+            val lp = LinkProperties()
                 .setChannel("facebook")
                 .setFeature("sharing")
                 .setCampaign("content 123 launch")
                 .setStage("new user")
                 .addControlParameter("\$desktop_url", "http://example.com/home")
-                .addControlParameter("\$deeplink_path", "new page")
+                .addControlParameter("\$deeplink_path", "color block page")
                 .addControlParameter("custom", "data")
-                .addControlParameter("blockColor", "Yellow")
+                .addControlParameter("blockColor", "Red")
                 .addControlParameter("custom_random", Calendar.getInstance().getTimeInMillis().toString())
 
             val ss = ShareSheetStyle(this@MainActivity, "Check this out!", "This stuff is awesome: ")
@@ -161,16 +129,12 @@ class MainActivity : AppCompatActivity() {
             ShareBranchLink()
         }
 
-
         // ---------- Read Deep Link Button ----------
         val readDeepLinkButton = findViewById<Button>(R.id.readDeepLinkButton)
         readDeepLinkButton.setOnClickListener {
             val readDeepLinkPageIntent = Intent(this, ReadDeepLinkActivity::class.java)
             startActivity(readDeepLinkPageIntent)
         }
-
-
-
 
         // ---------- Branch Event Buttons ----------
 
@@ -206,14 +170,28 @@ class MainActivity : AppCompatActivity() {
 
         // ---------- Create QR Code ----------
 
+        // This code dims the area around the QR code image
+        fun PopupWindow.dimBehind() {
+            val container = contentView.rootView
+            val context = contentView.context
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val p = container.layoutParams as WindowManager.LayoutParams
+            p.flags = p.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
+            p.dimAmount = 0.7f
+            wm.updateViewLayout(container, p)
+        }
+
+
         fun createQRCode() {
+
             val qrCode = BranchQRCode()
                 .setCodeColor("#050E3C")
                 .setBackgroundColor(Color.WHITE)
                 .setMargin(1)
                 .setWidth(512)
                 .setImageFormat(BranchQRCode.BranchImageFormat.JPEG)
-                .setCenterLogo("https://cdn.branch.io/branch-assets/1598575682753-og_image.png")
+                .setCenterLogo("https://i.snipboard.io/5PW62T.jpg")
+               // .setCenterLogo("https://cdn.branch.io/branch-assets/1598575682753-og_image.png")
 
             val qrCodeLinkProperties = LinkProperties()
                 .setChannel("QR Code Creator Channel")
@@ -223,16 +201,21 @@ class MainActivity : AppCompatActivity() {
             qrCode.getQRCodeAsImage(this@MainActivity, buo, qrCodeLinkProperties, object :
                 BranchQRCode.BranchQRCodeImageHandler<Any?> {
                 override fun onSuccess(qrCodeImage: Bitmap) {
-                    //Do something with your QR code here.
-                    val qrCodeImageLink = findViewById<ImageView>(R.id.qrCodeImageView)
-                    qrCodeImageLink.updateLayoutParams {
-                        width = WRAP_CONTENT
-                        height = WRAP_CONTENT
+
+                    // Make the QR Code a Popup Window
+                    val qrCodeView = layoutInflater.inflate(R.layout.qr_code_popup_window, null)
+                    val qrCodeWindow = PopupWindow(qrCodeView, WRAP_CONTENT, WRAP_CONTENT, true)
+                    qrCodeWindow.contentView = qrCodeView
+                    qrCodeWindow.showAtLocation(qrCodeView, Gravity.CENTER, 0, 0)
+                    qrCodeWindow.dimBehind()
+
+                    // Set ImageView to created QR Code
+                    val qrCodeImageView = qrCodeView.findViewById<ImageView>(R.id.qrCodePopupImageView)
+                    qrCodeImageView.setImageBitmap(qrCodeImage)
+                    qrCodeImageView.setOnClickListener {
+                        qrCodeWindow.dismiss()
                     }
-                    qrCodeImageLink.setImageBitmap(qrCodeImage)
-
                 }
-
                 override fun onFailure(e: Exception) {
                     Log.d("Failed to get QR code", e.toString())
                 }
@@ -248,20 +231,9 @@ class MainActivity : AppCompatActivity() {
         // ---------- Open Color Block Page Manually ----------
         val colorBlockButton = findViewById<Button>(R.id.colorBlockPageButton)
         colorBlockButton.setOnClickListener {
-            val colorBlockIntent = Intent(this, DeepLinkRoutingPage::class.java)
+            val colorBlockIntent = Intent(this, ColorBlockPage::class.java)
             startActivity(colorBlockIntent)
         }
-
-       /* // Dynamic Shortcut
-
-        val shortcut = ShortcutInfoCompat.Builder(this, "shortcut1")
-            .setShortLabel("Testing")
-            .setLongLabel("Testing for Help")
-            .setIcon(IconCompat.createWithResource(this, R.drawable.branchbadgedark))
-            .setIntent(Intent(this, ReadDeepLinkActivity::class.java))
-            .build()
-
-        ShortcutManagerCompat.pushDynamicShortcut(this, shortcut)*/
     }
 
     // ---------- Initialize New Branch Session ----------
@@ -278,13 +250,12 @@ class MainActivity : AppCompatActivity() {
                 Log.e("BranchSDK_Tester", referringParams.toString())
                 println("SDK LOGS ABOVE")
                 if (referringParams.has("\$deeplink_path")) {
-                    if (referringParams["\$deeplink_path"] == "new page") {
-                        val routingPageIntent = Intent(this, DeepLinkRoutingPage::class.java)
+                    if (referringParams["\$deeplink_path"] == "color block page") {
+                        val routingPageIntent = Intent(this, ColorBlockPage::class.java)
                         routingPageIntent.putExtra("branch_force_new_session", true)
                         startActivity(routingPageIntent)
                     }
                 }
-
             }
         }.reInit()
     }
